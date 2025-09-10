@@ -1,0 +1,6 @@
+{
+  "python.defaultInterpreterPath": "C:\\Users\\KAUSHIK MC\\Desktop\\envs\\vehicle\\python.exe",
+  "python.condaPath": "C:\\Users\\KAUSHIK MC\\Desktop\\Scripts\\conda.exe",
+  "jupyter.jupyterServerType": "local",
+  "jupyter.kernels.excludePythonEnvironments": []
+}
