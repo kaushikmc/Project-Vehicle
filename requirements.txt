@@ -18,4 +18,6 @@ python-multipart
 uvicorn
 jinja2
 imblearn
+shap             # For generating attribution scores
+google-genai     # For calling the Gemini API
 -e .

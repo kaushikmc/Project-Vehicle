@@ -6,7 +6,7 @@ from fastapi.templating import Jinja2Templates
 from starlette.responses import HTMLResponse, RedirectResponse
 from uvicorn import run as app_run
 
-from typing import Optional
+from typing import Optional, Dict, Any
 
 # Importing constants and pipeline modules from the project
 from src.constants import APP_HOST, APP_PORT
@@ -99,7 +99,7 @@ async def trainRouteClient():
 @app.post("/")
 async def predictRouteClient(request: Request):
     """
-    Endpoint to receive form data, process it, and make a prediction.
+    Endpoint to receive form data, process it, make a prediction, and generate an explanation.
     """
     try:
         form = DataForm(request)
@@ -125,20 +125,34 @@ async def predictRouteClient(request: Request):
         # Initialize the prediction pipeline
         model_predictor = VehicleDataClassifier()
 
-        # Make a prediction and retrieve the result
-        value = model_predictor.predict(dataframe=vehicle_df)[0]
+        # Make a prediction and retrieve the result, raw SHAP, and Gemini explanation
+        # The prediction method now returns a tuple: (value, raw_shap_dict, gemini_explanation)
+        prediction_value, raw_shap_dict, gemini_explanation = model_predictor.predict(dataframe=vehicle_df)
 
         # Interpret the prediction result as 'Response-Yes' or 'Response-No'
-        status = "Response-Yes" if value == 1 else "Response-No"
+        status = "Response-Yes" if prediction_value == 1 else "Response-No"
 
-        # Render the same HTML page with the prediction result
+        # Render the same HTML page with the prediction result and XAI data
         return templates.TemplateResponse(
             "vehicledata.html",
-            {"request": request, "context": status},
+            {
+                "request": request, 
+                "context": status,
+                "raw_shap": raw_shap_dict,       # Pass raw SHAP for optional display/debugging
+                "explanation": gemini_explanation # Pass the human-readable explanation
+            },
         )
         
     except Exception as e:
-        return {"status": False, "error": f"{e}"}
+        # For production, we should handle exceptions gracefully and provide a friendly error message.
+        return templates.TemplateResponse(
+            "vehicledata.html",
+            {
+                "request": request, 
+                "context": "Prediction Failed",
+                "explanation": f"An unexpected error occurred during prediction: {e}"
+            },
+        )
 
 # Main entry point to start the FastAPI server
 if __name__ == "__main__":

@@ -3,9 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vehicle Insurance Prediction</title>
-    <!-- Corrected the CSS path -->
+    <title>Vehicle Insurance Prediction & XAI</title>
+    <!-- Assuming /static/css/style.css exists -->
     <link rel="stylesheet" href="/static/css/style.css">
+    
+    <style>
+        /* --- Basic Styling for Result and Explanation (If style.css is minimal) --- */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #0056b3;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        form label {
+            display: block;
+            margin: 15px 0 5px;
+            font-weight: bold;
+        }
+        form input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .train-button {
+            background-color: #28a745;
+        }
+        .train-button:hover {
+            background-color: #1e7e34;
+        }
+        .result, .explanation-box {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .result {
+            background-color: #e9f7ff;
+            border: 1px solid #cceeff;
+        }
+        .explanation-box {
+            background-color: #fffff0;
+            border: 1px solid #e6e6cc;
+        }
+        .explanation-box p {
+            white-space: pre-wrap;
+        }
+        details {
+            margin-top: 20px;
+            border: 1px solid #eee;
+            padding: 10px;
+            border-radius: 6px;
+            background-color: #fafafa;
+        }
+        summary {
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -52,10 +137,28 @@
             <button type="submit" class="train-button">Train Model</button>
         </form>
 
-        {% if context %}
+        {% if context and context != "Rendering" %}
             <div class="result">
-                <h2>Result: {{ context }}</h2>
+                <h2>Prediction: {{ context }}</h2>
             </div>
+            
+            {% if explanation %}
+                <div class="explanation-box">
+                    <h3>Prediction Rationale (AI Explanation)</h3>
+                    <!-- Gemini provides the human-readable explanation -->
+                    <p>{{ explanation }}</p>
+                    
+                    <!-- Optional: Display raw SHAP data for debugging -->
+                    {% if raw_shap %}
+                    <details>
+                        <summary>Technical Details: Raw Feature Contributions (SHAP Scores)</summary>
+                        <pre style="white-space: pre-wrap; overflow-x: auto; font-size: 10px;">{{ raw_shap | tojson(indent=2) }}</pre>
+                    </details>
+                    {% endif %}
+
+                </div>
+            {% endif %}
+
         {% endif %}
     </div>
 </body>

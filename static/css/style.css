@@ -1,58 +1,75 @@
 /* styles.css */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Arial', sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
+    /* Use min-height to allow content growth while centering */
+    min-height: 100vh; 
     margin: 0;
     background-color: #f4f6f8;
+    padding: 20px; /* Added padding for responsiveness on small screens */
 }
 
 .container {
     width: 100%;
-    max-width: 500px;
+    max-width: 600px; /* Increased max width slightly for better reading of results */
     background-color: #ffffff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 30px; /* Increased padding */
+    border-radius: 10px; /* Slightly more rounded corners */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Stronger shadow */
     text-align: center;
 }
 
 h1 {
-    color: #333;
+    color: #004085; /* Darker blue for prominence */
+    margin-bottom: 25px;
 }
 
 form {
     display: flex;
     flex-direction: column;
     gap: 15px;
+    padding-bottom: 20px;
 }
 
 label {
     text-align: left;
-    color: #555;
-    font-weight: bold;
+    color: #343a40;
+    font-weight: 600; /* Slightly bolder */
+    margin-bottom: -10px; /* Pull label closer to input */
 }
 
 input {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    padding: 10px;
+    border: 1px solid #cce5ff; /* Light blue border */
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+    outline: none;
 }
 
 button {
-    padding: 10px;
+    padding: 12px;
     background-color: #007bff;
     color: #fff;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
     font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.1s;
+    margin-top: 10px;
 }
 
 button:hover {
     background-color: #0056b3;
+    transform: translateY(-1px);
 }
 
 .train-button {
@@ -64,10 +81,63 @@ button:hover {
     background-color: #218838;
 }
 
+/* --- XAI & Result Styling --- */
+
 .result {
-    margin-top: 20px;
+    margin-top: 25px;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #d4edda; /* Light green background for result box */
+    border: 1px solid #c3e6cb;
 }
 
 .result h2 {
-    color: #007bff;
+    color: #155724; /* Dark green text */
+    margin: 0;
+    font-size: 1.5em;
+}
+
+/* Container for the AI Explanation */
+.explanation-box {
+    margin-top: 20px;
+    text-align: left;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #fff3cd; /* Light yellow/cream background for explanation */
+    border: 1px solid #ffeeba;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.explanation-box h3 {
+    color: #856404; /* Dark yellow text */
+    border-bottom: 1px solid #ffeeba;
+    padding-bottom: 5px;
+    margin-top: 0;
+}
+
+/* Styling for the raw SHAP data (inside <details>) */
+details {
+    margin-top: 15px;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 6px;
+    background-color: #f8f9fa; /* Light grey for technical details */
+    transition: all 0.2s ease-in-out;
+}
+
+summary {
+    font-weight: bold;
+    color: #6c757d; /* Grey text for summary */
+    cursor: pointer;
+    outline: none;
+}
+
+pre {
+    background-color: #e9ecef;
+    padding: 10px;
+    border-radius: 4px;
+    overflow-x: auto;
+    font-size: 12px;
+    white-space: pre-wrap;
+    word-break: break-all;
 }
