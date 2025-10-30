@@ -107,11 +107,23 @@ def get_gemini_explanation(input_features: dict, prediction: str, shap_values: d
         client = genai.Client(api_key=gemini_api_key)
         
         # --- CRITICAL FIX: Explicit Type Conversion to avoid TypeError ---
-        # Convert input features to standard Python strings for the prompt
+        # Convert input features to standard Python strings for the prompt (str is most robust for heterogeneous data)
         cleaned_input_features = {k: str(v) for k, v in input_features.items()}
         
-        # Convert SHAP values to standard Python floats for formatting
+        # Convert SHAP values to standard Python floats for formatting (must succeed for a number)
         cleaned_shap_values = {k: float(v) for k, v in shap_values.items()}
+        
+        # ----------------------------------------------------------------------
+        # DEBUG LOGGING BLOCK (Used for diagnosing the persistent TypeError)
+        # ----------------------------------------------------------------------
+        
+        logging.debug("DEBUG: Data Types Before Gemini Call:")
+        logging.debug(f"Input Feature Types: { {k: type(v) for k, v in cleaned_input_features.items()} }")
+        logging.debug(f"SHAP Value Types: { {k: type(v) for k, v in cleaned_shap_values.items()} }")
+        logging.debug(f"Input Feature Repr: {repr(cleaned_input_features)}")
+        logging.debug(f"SHAP Value Repr: {repr(cleaned_shap_values)}")
+        
+        # ----------------------------------------------------------------------
         
         # 2. Construct the Detailed Prompt
         
