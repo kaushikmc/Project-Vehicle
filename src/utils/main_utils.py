@@ -5,7 +5,7 @@ import numpy as np
 import dill
 import yaml
 from pandas import DataFrame
-from google import genai
+from google import genai # Already imported
 
 from src.exception import MyException
 from src.logger import logging
@@ -86,8 +86,7 @@ def save_object(file_path: str, obj: object) -> None:
     except Exception as e:
         raise MyException(e, sys) from e
     
-
-
+    
 GEMINI_API_KEY_ENV_KEY = "GEMINI_API_KEY"
 
 def get_gemini_explanation(input_features: dict, prediction: str, shap_values: dict) -> str:
@@ -95,9 +94,7 @@ def get_gemini_explanation(input_features: dict, prediction: str, shap_values: d
     Calls the Gemini API to generate a human-readable explanation
     for a model prediction based on feature values and SHAP scores.
     
-    input_features: dict of original feature names and values.
-    prediction: str, the predicted class ('Interested' or 'Not Interested').
-    shap_values: dict of transformed feature names and their SHAP scores.
+    FIXED: Converts all numerical dictionary values to standard Python types to prevent TypeError.
     """
     logging.info("Attempting to call Gemini API for prediction explanation.")
     try:
@@ -109,11 +106,18 @@ def get_gemini_explanation(input_features: dict, prediction: str, shap_values: d
 
         client = genai.Client(api_key=gemini_api_key)
         
+        # --- CRITICAL FIX: Explicit Type Conversion to avoid TypeError ---
+        # Convert input features to standard Python strings for the prompt
+        cleaned_input_features = {k: str(v) for k, v in input_features.items()}
+        
+        # Convert SHAP values to standard Python floats for formatting
+        cleaned_shap_values = {k: float(v) for k, v in shap_values.items()}
+        
         # 2. Construct the Detailed Prompt
         
-        # Create clear lists for the prompt
-        feature_list = "\n".join([f"- {k}: {v}" for k, v in input_features.items()])
-        shap_list = "\n".join([f"- {k}: {v:.4f}" for k, v in shap_values.items()])
+        # Use cleaned dictionaries here
+        feature_list = "\n".join([f"- {k}: {v}" for k, v in cleaned_input_features.items()])
+        shap_list = "\n".join([f"- {k}: {v:.4f}" for k, v in cleaned_shap_values.items()])
         
         prompt = f"""
         Analyze the following machine learning prediction for a customer applying for vehicle insurance.
@@ -145,7 +149,7 @@ def get_gemini_explanation(input_features: dict, prediction: str, shap_values: d
         return response.text.replace('**', '').replace('*', '') 
 
     except Exception as e:
-        logging.error(f"Gemini API call failed: {e}")
+        logging.error(f"Gemini API call failed: {e}", exc_info=True)
         # Return a user-friendly error message if the API call fails
         return f"Error generating human-readable explanation: {type(e).__name__} occurred."
 
