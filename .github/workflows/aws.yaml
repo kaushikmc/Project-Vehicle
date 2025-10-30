@@ -54,4 +54,19 @@ jobs:
 
       - name: Run Docker Image to serve users
         run: |
-          docker run -d -e AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" -e AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" -e AWS_DEFAULT_REGION="${{ secrets.AWS_DEFAULT_REGION }}" -e MONGODB_URL="${{ secrets.MONGODB_URL }}" -e GEMINI_API_KEY="${{ secrets.GEMINI_API_KEY }}" -p 5000:5000 "${{ steps.login-ecr.outputs.registry }}"/"${{ secrets.ECR_REPO }}":latest
+          # Define container name and image URI for clarity
+          CONTAINER_NAME="vehicle-predictor"
+          IMAGE_URI="${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPO }}:latest"
+          
+          # --- CRITICAL FIX: Stop and remove old container ---
+          echo "Stopping and removing existing container: $CONTAINER_NAME"
+          # '|| true' allows the script to continue if the container does not exist (first run)
+          docker stop $CONTAINER_NAME || true
+          docker rm $CONTAINER_NAME || true
+          
+          # Pull the latest image (optional, but good practice before running)
+          docker pull $IMAGE_URI
+          
+          # Run the new container with the latest image and all secrets
+          echo "Starting new container from image: $IMAGE_URI"
+          docker run -d --name $CONTAINER_NAME -e AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" -e AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" -e AWS_DEFAULT_REGION="${{ secrets.AWS_DEFAULT_REGION }}" -e MONGODB_URL="${{ secrets.MONGODB_URL }}" -e GEMINI_API_KEY="${{ secrets.GEMINI_API_KEY }}"  -p 5000:5000 $IMAGE_URI

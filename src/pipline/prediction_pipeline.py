@@ -1,5 +1,5 @@
 import sys
-import shap  # New: For generating attribution scores
+import shap 
 from pandas import DataFrame
 from typing import Tuple, Optional, Dict
 
@@ -112,13 +112,6 @@ class VehicleDataClassifier:
             # The trained model object is the RandomForestClassifier
             VehicleDataClassifier._explainer = shap.TreeExplainer(model_object.trained_model_object)
             
-            # Since the ColumnTransformer is complex, we list the final feature names in the order 
-            # they are outputted by the pipeline's ColumnTransformer.
-            # This order must match the feature order in the model's training!
-            # Numeric (StandardScaler): Age, Vintage
-            # Numeric (MinMaxScaler): Annual_Premium, Region_Code, Policy_Sales_Channel
-            # Encoded/Passthrough (Binary): Gender_Male, Driving_License, Previously_Insured, Vehicle_Age_lt_1_Year, Vehicle_Age_gt_2_Years, Vehicle_Damage_Yes
-
             # Note: This is a placeholder list; actual feature count/order must be verified 
             # against your model's pipeline structure.
             VehicleDataClassifier._feature_names = [
@@ -162,8 +155,20 @@ class VehicleDataClassifier:
             # 5. Generate SHAP values
             shap_values = explainer.shap_values(preprocessed_data)
             
-            # SHAP returns a list of arrays for multi-class. We use the array for class 1 (Interested).
-            shap_values_array = shap_values[1][0] 
+            # --- CRITICAL FIX: Handle single-output vs. list-output SHAP values ---
+            # If shap_values is a list (typical for multi-class/binary), take the values for class 1.
+            # If it's a single numpy array, the model is too biased, and we use the first (and only) array output.
+            if isinstance(shap_values, list) and len(shap_values) > 1:
+                # Binary output: takes the values for the positive class (index 1)
+                shap_values_array = shap_values[1][0] 
+            elif isinstance(shap_values, list) and len(shap_values) == 1:
+                 # Single output: This means the model is only predicting class 0, and SHAP only returned the values for that class. 
+                 # We still use the only array available.
+                shap_values_array = shap_values[0][0] 
+            else:
+                # If SHAP returns a single array directly (less common but possible for one input sample)
+                shap_values_array = shap_values[0] 
+            # ---------------------------------------------------------------------
             
             # 6. Create SHAP dictionary (map names to values)
             raw_shap_dict = dict(zip(feature_names, shap_values_array.tolist()))
