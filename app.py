@@ -7,6 +7,7 @@ from starlette.responses import HTMLResponse, RedirectResponse
 from uvicorn import run as app_run
 
 from typing import Optional, Dict, Any
+import logging # Added logging import
 
 # Importing constants and pipeline modules from the project
 from src.constants import APP_HOST, APP_PORT
@@ -57,7 +58,6 @@ class DataForm:
     async def get_vehicle_data(self):
         """
         Method to retrieve and assign form data to class attributes.
-        This method is asynchronous to handle form data fetching without blocking.
         """
         form = await self.request.form()
         self.Gender = form.get("Gender")
@@ -93,6 +93,8 @@ async def trainRouteClient():
         return Response("Training successful!!!")
 
     except Exception as e:
+        # Log the error for debugging
+        logging.error(f"Training failed: {e}", exc_info=True)
         return Response(f"Error Occurred! {e}")
 
 # Route to handle form submission and make predictions
@@ -138,13 +140,15 @@ async def predictRouteClient(request: Request):
             {
                 "request": request, 
                 "context": status,
-                "raw_shap": raw_shap_dict,       # Pass raw SHAP for optional display/debugging
+                "raw_shap": raw_shap_dict,      # Pass raw SHAP for optional display/debugging
                 "explanation": gemini_explanation # Pass the human-readable explanation
             },
         )
         
     except Exception as e:
         # For production, we should handle exceptions gracefully and provide a friendly error message.
+        error_message = f"Prediction failed due to internal error. Details: {e}"
+        logging.error(error_message, exc_info=True)
         return templates.TemplateResponse(
             "vehicledata.html",
             {

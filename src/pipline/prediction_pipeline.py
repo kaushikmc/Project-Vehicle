@@ -50,20 +50,20 @@ class VehicleData:
         This function returns a DataFrame from VehicleData class input
         """
         try:
-            vehicle_input_dict = self.get_vehicle_data_as_dict()
+            # Returns a DataFrame suitable for model input (values are lists)
+            vehicle_input_dict = self.get_vehicle_data_as_dict_list()
             return DataFrame(vehicle_input_dict)
         
         except Exception as e:
             raise MyException(e, sys) from e
 
-    def get_vehicle_data_as_dict(self):
+    def get_vehicle_data_as_dict_list(self):
         """
-        This function returns a dictionary from VehicleData class input
+        This function returns a dictionary where values are lists (suitable for DataFrame creation).
+        Used internally to create the input DataFrame.
         """
-        logging.info("Entered get_vehicle_data_as_dict method of VehicleData class")
-
+        logging.info("Entered get_vehicle_data_as_dict_list method of VehicleData class")
         try:
-            # Note: Values are wrapped in a list to create a DataFrame with one row
             input_data = {
                 "Gender": [self.Gender],
                 "Age": [self.Age],
@@ -77,11 +77,7 @@ class VehicleData:
                 "Vehicle_Age_gt_2_Years": [self.Vehicle_Age_gt_2_Years],
                 "Vehicle_Damage_Yes": [self.Vehicle_Damage_Yes]
             }
-
-            logging.info("Created vehicle data dict")
-            logging.info("Exited get_vehicle_data_as_dict method of VehicleData class")
             return input_data
-
         except Exception as e:
             raise MyException(e, sys) from e
 
@@ -138,8 +134,8 @@ class VehicleDataClassifier:
         try:
             logging.info("Entered predict method of VehicleDataClassifier class")
             
-            # 1. Get raw input data for Gemini prompt
-            raw_input_data = dataframe.iloc[0].to_dict()
+            # 1. Get raw input data for Gemini prompt (simple dict of single values)
+            raw_input_data = {k: v[0] for k, v in dataframe.to_dict('list').items()}
 
             # 2. Load model and init XAI tools
             self.model_estimator.loaded_model = self.model_estimator.load_model()
@@ -155,23 +151,22 @@ class VehicleDataClassifier:
             # 5. Generate SHAP values
             shap_values = explainer.shap_values(preprocessed_data)
             
-            # --- CRITICAL FIX: Handle single-output vs. list-output SHAP values ---
-            # If shap_values is a list (typical for multi-class/binary), take the values for class 1.
-            # If it's a single numpy array, the model is too biased, and we use the first (and only) array output.
+            # --- CRITICAL FIX: Handle variable SHAP output structure ---
             if isinstance(shap_values, list) and len(shap_values) > 1:
-                # Binary output: takes the values for the positive class (index 1)
-                shap_values_array = shap_values[1][0] 
+                # Normal binary case: take the positive class (index 1) for the first sample (index 0)
+                shap_values_list = shap_values[1][0] 
             elif isinstance(shap_values, list) and len(shap_values) == 1:
-                 # Single output: This means the model is only predicting class 0, and SHAP only returned the values for that class. 
-                 # We still use the only array available.
-                shap_values_array = shap_values[0][0] 
+                # Biased case (returns only one class): take the only array available
+                shap_values_list = shap_values[0][0]
             else:
-                # If SHAP returns a single array directly (less common but possible for one input sample)
-                shap_values_array = shap_values[0] 
+                # Fallback (single array directly): use the array
+                shap_values_list = shap_values[0]
             # ---------------------------------------------------------------------
             
             # 6. Create SHAP dictionary (map names to values)
-            raw_shap_dict = dict(zip(feature_names, shap_values_array.tolist()))
+            # .tolist() is used to convert the numpy array/list to a standard Python list, which is then handled
+            # by the JSON serialization in main_utils.py
+            raw_shap_dict = dict(zip(feature_names, shap_values_list.tolist() if hasattr(shap_values_list, 'tolist') else shap_values_list))
             
             # 7. Generate Human-Readable Explanation from Gemini
             gemini_explanation = get_gemini_explanation(

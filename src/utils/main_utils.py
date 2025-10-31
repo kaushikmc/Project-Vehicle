@@ -1,15 +1,20 @@
 import os
 import sys
-
+import json
 import numpy as np
 import dill
 import yaml
 from pandas import DataFrame
-from google import genai # Already imported
+from google import genai
+import logging # Ensure logging is imported here
 
 from src.exception import MyException
-from src.logger import logging
+# from src.logger import logging # Assuming it's imported elsewhere or above
 
+# Define environment key name
+GEMINI_API_KEY_ENV_KEY = "GEMINI_API_KEY"
+
+# --- Existing Utility Functions (read_yaml_file, save_object, etc.) ---
 
 def read_yaml_file(file_path: str) -> dict:
     try:
@@ -35,8 +40,6 @@ def write_yaml_file(file_path: str, content: object, replace: bool = False) -> N
 def load_object(file_path: str) -> object:
     """
     Returns model/object from project directory.
-    file_path: str location of file to load
-    return: Model/Obj
     """
     try:
         with open(file_path, "rb") as file_obj:
@@ -48,8 +51,6 @@ def load_object(file_path: str) -> object:
 def save_numpy_array_data(file_path: str, array: np.array):
     """
     Save numpy array data to file
-    file_path: str location of file to save
-    array: np.array data to save
     """
     try:
         dir_path = os.path.dirname(file_path)
@@ -63,8 +64,6 @@ def save_numpy_array_data(file_path: str, array: np.array):
 def load_numpy_array_data(file_path: str) -> np.array:
     """
     load numpy array data from file
-    file_path: str location of file to load
-    return: np.array data loaded
     """
     try:
         with open(file_path, 'rb') as file_obj:
@@ -85,16 +84,15 @@ def save_object(file_path: str, obj: object) -> None:
 
     except Exception as e:
         raise MyException(e, sys) from e
-    
-    
-GEMINI_API_KEY_ENV_KEY = "GEMINI_API_KEY"
+# --- End of Existing Utility Functions ---
+
 
 def get_gemini_explanation(input_features: dict, prediction: str, shap_values: dict) -> str:
     """
     Calls the Gemini API to generate a human-readable explanation
     for a model prediction based on feature values and SHAP scores.
     
-    FIXED: Converts all numerical dictionary values to standard Python types to prevent TypeError.
+    FIXED: Uses JSON serialization to handle complex NumPy types and passes clean strings to Gemini.
     """
     logging.info("Attempting to call Gemini API for prediction explanation.")
     try:
@@ -106,31 +104,26 @@ def get_gemini_explanation(input_features: dict, prediction: str, shap_values: d
 
         client = genai.Client(api_key=gemini_api_key)
         
-        # --- CRITICAL FIX: Explicit Type Conversion to avoid TypeError ---
-        # Convert input features to standard Python strings for the prompt (str is most robust for heterogeneous data)
+        # --- CRITICAL FIX: Explicit Type Conversion and JSON Prep ---
+        # Convert input features to standard Python strings for the prompt
         cleaned_input_features = {k: str(v) for k, v in input_features.items()}
         
-        # Convert SHAP values to standard Python floats for formatting (must succeed for a number)
-        cleaned_shap_values = {k: float(v) for k, v in shap_values.items()}
-        
-        # ----------------------------------------------------------------------
-        # DEBUG LOGGING BLOCK (Used for diagnosing the persistent TypeError)
-        # ----------------------------------------------------------------------
-        
-        logging.debug("DEBUG: Data Types Before Gemini Call:")
-        logging.debug(f"Input Feature Types: { {k: type(v) for k, v in cleaned_input_features.items()} }")
-        logging.debug(f"SHAP Value Types: { {k: type(v) for k, v in cleaned_shap_values.items()} }")
-        logging.debug(f"Input Feature Repr: {repr(cleaned_input_features)}")
-        logging.debug(f"SHAP Value Repr: {repr(cleaned_shap_values)}")
-        
-        # ----------------------------------------------------------------------
+        # Prepare SHAP values: must be floats for JSON serialization
+        json_serializable_shap_values = {}
+        for k, v in shap_values.items():
+            # If v is a list, take the first element (index 0) which is the contribution score.
+            value = v[0] if isinstance(v, list) else v
+            # Ensure the value is converted to a standard float before being used
+            json_serializable_shap_values[k] = float(value) if value is not None else 0.0
+
         
         # 2. Construct the Detailed Prompt
         
-        # Use cleaned dictionaries here
-        feature_list = "\n".join([f"- {k}: {v}" for k, v in cleaned_input_features.items()])
-        shap_list = "\n".join([f"- {k}: {v:.4f}" for k, v in cleaned_shap_values.items()])
+        # Use JSON dump for the complex SHAP values, forcing all conversion issues here
+        shap_json_string = json.dumps(json_serializable_shap_values, indent=2)
         
+        feature_list = "\n".join([f"- {k}: {v}" for k, v in cleaned_input_features.items()])
+
         prompt = f"""
         Analyze the following machine learning prediction for a customer applying for vehicle insurance.
         The model made the prediction: **{prediction}**.
@@ -138,8 +131,8 @@ def get_gemini_explanation(input_features: dict, prediction: str, shap_values: d
         Customer Input Features (Original Values):
         {feature_list}
 
-        Feature Contributions (SHAP Values for Class 'Interested'):
-        {shap_list}
+        Feature Contributions (SHAP Values for Class 'Interested') as a JSON dictionary:
+        {shap_json_string}
         
         Rules for Interpretation:
         1. A positive SHAP value pushed the prediction **TOWARDS 'Interested'**.
@@ -163,23 +156,4 @@ def get_gemini_explanation(input_features: dict, prediction: str, shap_values: d
     except Exception as e:
         logging.error(f"Gemini API call failed: {e}", exc_info=True)
         # Return a user-friendly error message if the API call fails
-        return f"Error generating human-readable explanation: {type(e).__name__} occurred."
-
-
-# def drop_columns(df: DataFrame, cols: list)-> DataFrame:
-
-#     """
-#     drop the columns form a pandas DataFrame
-#     df: pandas DataFrame
-#     cols: list of columns to be dropped
-#     """
-#     logging.info("Entered drop_columns methon of utils")
-
-#     try:
-#         df = df.drop(columns=cols, axis=1)
-
-#         logging.info("Exited the drop_columns method of utils")
-        
-#         return df
-#     except Exception as e:
-#         raise MyException(e, sys) from e
+        return f"Error generating human-readable explanation: {type(e).__name__} occurred. Details: {e}"
