@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About | InsureAI - Vehicle Insurance Prediction</title>
+    <title>Contact | InsureAI - Vehicle Insurance Prediction</title>
     <link rel="stylesheet" href="/static/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -18,8 +18,8 @@
             </div>
             <nav class="nav">
                 <a href="/" class="nav-link">Predict</a>
-                <a href="/about" class="nav-link active">About</a>
-                <a href="/contact" class="nav-link">Contact</a>
+                <a href="/about" class="nav-link">About</a>
+                <a href="/contact" class="nav-link active">Contact</a>
             </nav>
         </div>
     </header>
@@ -28,8 +28,8 @@
     <section class="hero">
         <div class="container">
             <div class="hero-content">
-                <h1>About Our Project</h1>
-                <p>Production-Ready MLOps Pipeline for Vehicle Insurance Prediction</p>
+                <h1>Contact Us</h1>
+                <p>Get in touch with our team for more information</p>
             </div>
         </div>
     </section>
@@ -37,82 +37,81 @@
     <!-- Main Content -->
     <main class="main">
         <div class="container">
-            <div class="about-content">
-                <div class="about-text">
-                    <h2>Project Overview</h2>
-                    <p>
-                        In many industries, including insurance, the ability to accurately predict customer behavior is paramount. For vehicle insurance, identifying potential customers who are genuinely interested in a policy can significantly optimize marketing efforts and resource allocation. However, deploying and maintaining machine learning models in a production environment often presents significant challenges.
-                    </p>
-                    <p>
-                        These challenges include ensuring data quality, managing model versions, automating retraining, handling infrastructure, and providing reliable model serving. Traditional machine learning workflows often involve manual steps, leading to slow deployment cycles, inconsistent performance, and difficulty in scaling.
-                    </p>
-                    <p>
-                        This project directly addresses these challenges. Our primary goal was to build a robust, production-ready MLOps pipeline for managing vehicle insurance data. This pipeline is designed to showcase the various tools, techniques, services, and features essential for building and deploying a machine learning solution for real-world data management.
-                    </p>
-                    <p>
-                        It serves as a comprehensive demonstration of how to move from raw data to a continuously deployed and monitored machine learning model, aiming to impress recruiters and visitors by highlighting practical MLOps proficiency.
-                    </p>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <h2>Get In Touch</h2>
+                    <p>We'd love to hear from you. Please reach out with any questions or feedback about our Vehicle Insurance Prediction system.</p>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h3>Email</h3>
+                            <p>team@insureai-mlops.com</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h3>Phone</h3>
+                            <p>+1 (555) 123-4567</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h3>Location</h3>
+                            <p>Data Science Department<br>University Innovation Center<br>Tech Park, Innovation City</p>
+                        </div>
+                    </div>
+
+                    <div class="social-links">
+                        <h3>Follow Us</h3>
+                        <div class="social-icons">
+                            <a href="#" class="social-link">
+                                <i class="fab fa-github"></i>
+                            </a>
+                            <a href="#" class="social-link">
+                                <i class="fab fa-linkedin"></i>
+                            </a>
+                            <a href="#" class="social-link">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="features-grid">
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-database"></i>
+                <div class="contact-form">
+                    <h2>Send us a Message</h2>
+                    <form class="message-form" id="contactForm">
+                        <div class="form-group">
+                            <label for="name">Your Name</label>
+                            <input type="text" id="name" name="name" required>
                         </div>
-                        <h3>Data Management</h3>
-                        <p>Robust data pipeline ensuring quality and consistency throughout the ML lifecycle</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-robot"></i>
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" required>
                         </div>
-                        <h3>ML Automation</h3>
-                        <p>Automated training, testing and deployment workflows with CI/CD integration</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-chart-line"></i>
+                        <div class="form-group">
+                            <label for="subject">Subject</label>
+                            <input type="text" id="subject" name="subject" required>
                         </div>
-                        <h3>Performance Monitoring</h3>
-                        <p>Continuous monitoring and model performance tracking with automated alerts</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-lightbulb"></i>
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" name="message" rows="5" required></textarea>
                         </div>
-                        <h3>Explainable AI</h3>
-                        <p>Transparent predictions with SHAP-based explanations for better decision making</p>
-                    </div>
-                </div>
-
-                <div class="tech-stack">
-                    <h2>Technology Stack</h2>
-                    <div class="tech-grid">
-                        <div class="tech-item">
-                            <i class="fab fa-python"></i>
-                            <span>Python</span>
-                        </div>
-                        <div class="tech-item">
-                            <i class="fas fa-brain"></i>
-                            <span>Machine Learning</span>
-                        </div>
-                        <div class="tech-item">
-                            <i class="fas fa-project-diagram"></i>
-                            <span>MLOps</span>
-                        </div>
-                        <div class="tech-item">
-                            <i class="fas fa-chart-bar"></i>
-                            <span>SHAP</span>
-                        </div>
-                        <div class="tech-item">
-                            <i class="fas fa-server"></i>
-                            <span>FastAPI</span>
-                        </div>
-                        <div class="tech-item">
-                            <i class="fab fa-html5"></i>
-                            <span>HTML/CSS</span>
-                        </div>
-                    </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i>
+                            Send Message
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -121,8 +120,21 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2025 InsureAI. Vehicle Insurance Prediction with Explainable AI.</p>
+            <p>&copy; 2023 InsureAI. Vehicle Insurance Prediction with Explainable AI.</p>
         </div>
     </footer>
+
+    <script>
+        // Contact form handling
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Show success message
+            alert('Thank you for your message! We will get back to you soon.');
+            
+            // Reset form
+            this.reset();
+        });
+    </script>
 </body>
 </html>
