@@ -79,7 +79,23 @@ async def index(request: Request):
     Renders the main HTML form page for vehicle data input.
     """
     return templates.TemplateResponse(
-            "vehicledata.html",{"request": request, "context": "Rendering"})
+            "index.html",{"request": request, "context": "Rendering"})
+
+# Route to render the about page
+@app.get("/about", tags=["authentication"])
+async def about(request: Request):
+    """
+    Renders the about page.
+    """
+    return templates.TemplateResponse("about.html", {"request": request})
+
+# Route to render the contact page
+@app.get("/contact", tags=["authentication"])
+async def contact(request: Request):
+    """
+    Renders the contact page.
+    """
+    return templates.TemplateResponse("contact.html", {"request": request})
 
 # Route to trigger the model training process
 @app.get("/train")
@@ -136,7 +152,7 @@ async def predictRouteClient(request: Request):
 
         # Render the same HTML page with the prediction result and XAI data
         return templates.TemplateResponse(
-            "vehicledata.html",
+            "index.html",
             {
                 "request": request, 
                 "context": status,
@@ -150,7 +166,7 @@ async def predictRouteClient(request: Request):
         error_message = f"Prediction failed due to internal error. Details: {e}"
         logging.error(error_message, exc_info=True)
         return templates.TemplateResponse(
-            "vehicledata.html",
+            "index.html",
             {
                 "request": request, 
                 "context": "Prediction Failed",
