@@ -544,19 +544,19 @@ summary i {
     color: var(--gray);
 }
 
-.contact-form {
+/* .contact-form {
     background: var(--white);
     padding: 30px;
     border-radius: var(--radius);
     box-shadow: var(--shadow);
-}
+} */
 
-.contact-form h3 {
+/* .contact-form h3 {
     margin-bottom: 25px;
     color: var(--primary);
     text-align: center;
     font-size: 1.5rem;
-}
+} */
 
 .message-form .form-group {
     margin-bottom: 20px;
